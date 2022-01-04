@@ -31,8 +31,23 @@ impl Map {
         }
     }
 
+    /// Determine if a point is contained in the map
+    pub fn in_bounds(&self, point: &Point) -> bool {
+        point.x >= 0 && point.y < SCREEN_WIDTH && point.y >= 0 && point.y < SCREEN_HEIGHT
+    }
+
+    pub fn can_enter_tile(&self, point: &Point) -> bool {
+        self.in_bounds(point) && self.tiles[Self::map_index(point.x, point.y)] == FLOOR
+    }
+
+    pub fn set_tile(&mut self, point: &Point, tile: TileType) {
+        if self.in_bounds(point) {
+            let index = Self::map_index(point.x, point.y);
+            self.tiles[index] = tile;
+        }
+    }
+
     fn map_index(x: i32, y: i32) -> usize {
-        // TODO should probably be on Map
         ((y * SCREEN_WIDTH) + x) as usize
     }
 }
