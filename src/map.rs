@@ -17,14 +17,29 @@ impl Default for Map {
 }
 
 impl Map {
-    pub fn render(&self, context: &mut BTerm) {
-        for y in 0..SCREEN_HEIGHT {
-            for x in 0..SCREEN_WIDTH {
-                let index = Map::map_index(x, y);
-                if let Some(tile_type) = self.tiles.get(index) {
-                    match tile_type {
-                        WALL => context.set(x, y, YELLOW, BLACK, to_cp437('.')),
-                        FLOOR => context.set(x, y, GREEN, BLACK, to_cp437('#')),
+    /// Render the map from the camera's perspective
+    pub fn render(&self, context: &mut BTerm, camera: &Camera) {
+        context.set_active_console(0); // TODO constant for layers
+
+        for y in camera.top_y..camera.bottom_y {
+            for x in camera.left_x..camera.right_x {
+                let point = Point::new(x, y);
+                if let Some(tile) = self.get_tile(&point) {
+                    match tile {
+                        WALL => context.set(
+                            x - camera.left_x,
+                            y - camera.top_y,
+                            WHITE,
+                            BLACK,
+                            to_cp437('#'),
+                        ),
+                        FLOOR => context.set(
+                            x - camera.left_x,
+                            y - camera.top_y,
+                            WHITE,
+                            BLACK,
+                            to_cp437('.'),
+                        ),
                     }
                 }
             }
@@ -38,6 +53,14 @@ impl Map {
 
     pub fn can_enter_tile(&self, point: &Point) -> bool {
         self.in_bounds(point) && self.tiles[Self::map_index(point.x, point.y)] == FLOOR
+    }
+
+    pub fn get_tile(&self, point: &Point) -> Option<TileType> {
+        if self.in_bounds(point) {
+            let index = Self::map_index(point.x, point.y);
+            return Some(self.tiles[index]);
+        }
+        None
     }
 
     pub fn set_tile(&mut self, point: &Point, tile: TileType) {
