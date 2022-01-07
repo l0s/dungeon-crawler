@@ -9,3 +9,5 @@ pub struct Render {
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Adventurer;
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct Enemy;

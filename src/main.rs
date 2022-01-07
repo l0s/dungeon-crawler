@@ -45,7 +45,13 @@ impl Default for State {
         let mut resources = Resources::default();
         let mut rng = RandomNumberGenerator::new();
         let map_builder: MapBuilder = MapBuilder::from(&mut rng);
+
+        // create entities
+
         spawn_player(&mut ecs, &map_builder.starting_point);
+        map_builder.rooms.iter().skip(1)
+            .map(|room| room.center())
+            .for_each(|position| spawn_monster(&mut ecs, &mut rng, &position));
 
         resources.insert(map_builder.map);
         resources.insert(Camera::from(&map_builder.starting_point));
