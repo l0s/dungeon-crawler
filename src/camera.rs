@@ -7,9 +7,8 @@ pub struct Camera {
     pub bottom_y: i32,
 }
 
-impl From<&Adventurer> for Camera {
-    fn from(adventurer: &Adventurer) -> Self {
-        let player_position = adventurer.position;
+impl From<&Point> for Camera {
+    fn from(player_position: &Point) -> Self {
         Self {
             left_x: player_position.x - DISPLAY_WIDTH / 2,
             right_x: player_position.x + DISPLAY_WIDTH / 2,
@@ -20,8 +19,7 @@ impl From<&Adventurer> for Camera {
 }
 
 impl Camera {
-    pub fn follow_adventurer(&mut self, adventurer: &Adventurer) {
-        let player_position = adventurer.position;
+    pub fn follow_adventurer(&mut self, player_position: &Point) {
         self.left_x = player_position.x - DISPLAY_WIDTH / 2;
         self.right_x = player_position.x + DISPLAY_WIDTH / 2;
         self.top_y = player_position.y - DISPLAY_HEIGHT / 2;

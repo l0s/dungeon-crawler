@@ -1,17 +1,24 @@
 use prelude::*;
 
-mod adventurer;
 mod camera;
 mod map;
 mod map_builder;
+mod components;
+mod spawner;
+mod systems;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
+    pub use legion::*;
+    pub use legion::systems::CommandBuffer;
+    pub use legion::world::SubWorld;
 
-    pub use crate::adventurer::*;
     pub use crate::camera::*;
+    pub use crate::components::*;
     pub use crate::map::*;
     pub use crate::map_builder::*;
+    pub use crate::spawner::*;
+    pub use crate::systems::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
@@ -26,23 +33,27 @@ pub enum TileType {
 }
 
 struct State {
-    map: Map,
-    adventurer: Adventurer,
-    camera: Camera,
+    /// entity component system
+    ecs: World,
+    resources: Resources,
+    systems: Schedule,
 }
 
 impl Default for State {
     fn default() -> Self {
+        let mut ecs = World::default();
+        let mut resources = Resources::default();
         let mut rng = RandomNumberGenerator::new();
-        let map_builder: MapBuilder = (&mut rng).into();
-        let map = map_builder.map;
-        let adventurer: Adventurer = map_builder.starting_point.into();
-        let camera: Camera = (&adventurer).into();
+        let map_builder: MapBuilder = MapBuilder::from(&mut rng);
+        spawn_player(&mut ecs, &map_builder.starting_point);
+
+        resources.insert(map_builder.map);
+        resources.insert(Camera::from(&map_builder.starting_point));
 
         Self {
-            map,
-            adventurer,
-            camera,
+            ecs,
+            resources,
+            systems: build_scheduler(),
         }
     }
 }
@@ -54,12 +65,10 @@ impl GameState for State {
         context.set_active_console(1); // TODO constant
         context.cls();
 
-        // respond to input
-        self.adventurer.update(context, &self.map, &mut self.camera);
+        self.resources.insert(context.key);
+        self.systems.execute(&mut self.ecs, &mut self.resources);
 
-        // render
-        self.map.render(context, &self.camera);
-        self.adventurer.render(context, &self.camera);
+        render_draw_buffer(context).expect("Render error");
     }
 }
 

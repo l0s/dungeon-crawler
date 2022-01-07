@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::TileType;
-use crate::TileType::{FLOOR, WALL};
+use crate::TileType::FLOOR;
 
 const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 
@@ -17,34 +17,6 @@ impl Default for Map {
 }
 
 impl Map {
-    /// Render the map from the camera's perspective
-    pub fn render(&self, context: &mut BTerm, camera: &Camera) {
-        context.set_active_console(0); // TODO constant for layers
-
-        for y in camera.top_y..camera.bottom_y {
-            for x in camera.left_x..camera.right_x {
-                let point = Point::new(x, y);
-                if let Some(tile) = self.get_tile(&point) {
-                    match tile {
-                        WALL => context.set(
-                            x - camera.left_x,
-                            y - camera.top_y,
-                            WHITE,
-                            BLACK,
-                            to_cp437('#'),
-                        ),
-                        FLOOR => context.set(
-                            x - camera.left_x,
-                            y - camera.top_y,
-                            WHITE,
-                            BLACK,
-                            to_cp437('.'),
-                        ),
-                    }
-                }
-            }
-        }
-    }
 
     /// Determine if a point is contained in the map
     pub fn in_bounds(&self, point: &Point) -> bool {
@@ -58,7 +30,9 @@ impl Map {
     pub fn get_tile(&self, point: &Point) -> Option<TileType> {
         if self.in_bounds(point) {
             let index = Self::map_index(point.x, point.y);
-            return Some(self.tiles[index]);
+            if index < NUM_TILES {
+                return Some(self.tiles[index]);
+            }
         }
         None
     }
