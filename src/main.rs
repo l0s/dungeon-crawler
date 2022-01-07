@@ -1,17 +1,17 @@
 use prelude::*;
 
 mod camera;
+mod components;
 mod map;
 mod map_builder;
-mod components;
 mod spawner;
 mod systems;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
-    pub use legion::*;
     pub use legion::systems::CommandBuffer;
     pub use legion::world::SubWorld;
+    pub use legion::*;
 
     pub use crate::camera::*;
     pub use crate::components::*;
@@ -49,7 +49,10 @@ impl Default for State {
         // create entities
 
         spawn_player(&mut ecs, &map_builder.starting_point);
-        map_builder.rooms.iter().skip(1)
+        map_builder
+            .rooms
+            .iter()
+            .skip(1)
             .map(|room| room.center())
             .for_each(|position| spawn_monster(&mut ecs, &mut rng, &position));
 

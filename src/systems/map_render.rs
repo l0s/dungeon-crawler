@@ -2,10 +2,7 @@ use crate::prelude::*;
 use crate::TileType::{FLOOR, WALL};
 
 #[system]
-pub fn map_render(
-    #[resource] map: &Map,
-    #[resource] camera: &Camera,
-) {
+pub fn map_render(#[resource] map: &Map, #[resource] camera: &Camera) {
     let mut batch = DrawBatch::new();
     batch.target(0);
     for y in camera.top_y..camera.bottom_y {

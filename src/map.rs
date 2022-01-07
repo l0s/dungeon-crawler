@@ -17,7 +17,6 @@ impl Default for Map {
 }
 
 impl Map {
-
     /// Determine if a point is contained in the map
     pub fn in_bounds(&self, point: &Point) -> bool {
         point.x >= 0 && point.y < SCREEN_WIDTH && point.y >= 0 && point.y < SCREEN_HEIGHT

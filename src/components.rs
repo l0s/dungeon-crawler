@@ -11,3 +11,6 @@ pub struct Adventurer;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Enemy;
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct MovingRandomly;

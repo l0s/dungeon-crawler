@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use VirtualKeyCode::{Up, Down, Left, Right};
+use VirtualKeyCode::{Down, Left, Right, Up};
 
 #[system]
 #[write_component(Point)]
@@ -20,10 +20,8 @@ pub fn player_input(
             _ => Point::new(0, 0),
         };
         if delta.x != 0 || delta.y != 0 {
-            let mut adventurers = <&mut Point>::query()
-                .filter(component::<Adventurer>());
-            adventurers.iter_mut(ecs)
-                .for_each(|pos| {
+            let mut adventurers = <&mut Point>::query().filter(component::<Adventurer>());
+            adventurers.iter_mut(ecs).for_each(|pos| {
                 let destination = *pos + delta;
                 if map.can_enter_tile(&destination) {
                     *pos = destination;
