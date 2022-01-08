@@ -1,11 +1,14 @@
 use prelude::*;
 
+use crate::prelude::TurnState::{AwaitingInput, MonsterTurn, PlayerTurn};
+
 mod camera;
 mod components;
 mod map;
 mod map_builder;
 mod spawner;
 mod systems;
+mod turn_state;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
@@ -19,6 +22,7 @@ mod prelude {
     pub use crate::map_builder::*;
     pub use crate::spawner::*;
     pub use crate::systems::*;
+    pub use crate::turn_state::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
@@ -36,7 +40,10 @@ struct State {
     /// entity component system
     ecs: World,
     resources: Resources,
-    systems: Schedule,
+
+    input_systems: Schedule,
+    player_systems: Schedule,
+    monster_systems: Schedule,
 }
 
 impl Default for State {
@@ -58,11 +65,14 @@ impl Default for State {
 
         resources.insert(map_builder.map);
         resources.insert(Camera::from(&map_builder.starting_point));
+        resources.insert(AwaitingInput);
 
         Self {
             ecs,
             resources,
-            systems: build_scheduler(),
+            input_systems: build_input_scheduler(),
+            player_systems: build_player_scheduler(),
+            monster_systems: build_monster_scheduler(),
         }
     }
 }
@@ -75,7 +85,17 @@ impl GameState for State {
         context.cls();
 
         self.resources.insert(context.key);
-        self.systems.execute(&mut self.ecs, &mut self.resources);
+
+        let turn_state = *self
+            .resources
+            .get::<TurnState>()
+            .expect("Missing turn state");
+        let systems_scheduler = match turn_state {
+            AwaitingInput => &mut self.input_systems,
+            PlayerTurn => &mut self.player_systems,
+            MonsterTurn => &mut self.monster_systems,
+        };
+        systems_scheduler.execute(&mut self.ecs, &mut self.resources);
 
         render_draw_buffer(context).expect("Render error");
     }

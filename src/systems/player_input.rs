@@ -1,6 +1,8 @@
-use crate::prelude::*;
-
 use VirtualKeyCode::{Down, Left, Right, Up};
+
+use TurnState::PlayerTurn;
+
+use crate::prelude::*;
 
 #[system]
 #[write_component(Point)]
@@ -10,6 +12,7 @@ pub fn player_input(
     #[resource] map: &Map,
     #[resource] key: &Option<VirtualKeyCode>,
     #[resource] camera: &mut Camera,
+    #[resource] turn_state: &mut TurnState,
 ) {
     if let Some(key) = key {
         let delta = match key {
@@ -26,6 +29,7 @@ pub fn player_input(
                 if map.can_enter_tile(&destination) {
                     *pos = destination;
                     camera.follow_adventurer(&destination);
+                    *turn_state = PlayerTurn;
                 }
             });
         }

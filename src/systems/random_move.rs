@@ -4,6 +4,7 @@ use crate::prelude::*;
 #[write_component(Point)]
 #[read_component(MovingRandomly)]
 pub fn random_move(ecs: &mut SubWorld, #[resource] map: &Map) {
+    // FIXME monsters are running into each other
     let mut rng = RandomNumberGenerator::new();
     <(&mut Point, &MovingRandomly)>::query()
         .iter_mut(ecs)
