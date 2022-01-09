@@ -92,8 +92,13 @@ impl GameState for State {
         context.set_active_console(HUD_LAYER);
         context.cls();
 
+        // input
         self.resources.insert(context.key);
+        context.set_active_console(MAP_LAYER);
+        self.resources
+            .insert(Point::from_tuple(context.mouse_pos()));
 
+        // mechanics
         let turn_state = *self
             .resources
             .get::<TurnState>()
@@ -105,6 +110,7 @@ impl GameState for State {
         };
         systems_scheduler.execute(&mut self.ecs, &mut self.resources);
 
+        // render
         render_draw_buffer(context).expect("Render error");
     }
 }

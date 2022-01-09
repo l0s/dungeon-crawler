@@ -18,9 +18,16 @@ pub struct Enemy;
 
 // Properties
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+#[repr(transparent)]
+pub struct Name(pub String);
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Health {
+    /// The remaining hit points of the character
     pub current: u32,
+
+    /// The starting hit points of the character
     pub max: u32,
 }
 
