@@ -5,13 +5,12 @@ use TurnState::PlayerTurn;
 use crate::prelude::*;
 
 #[system]
-#[write_component(Point)]
+#[read_component(Point)]
 #[read_component(Adventurer)]
 pub fn player_input(
     ecs: &mut SubWorld,
-    #[resource] map: &Map,
+    buffer: &mut CommandBuffer,
     #[resource] key: &Option<VirtualKeyCode>,
-    #[resource] camera: &mut Camera,
     #[resource] turn_state: &mut TurnState,
 ) {
     if let Some(key) = key {
@@ -23,15 +22,20 @@ pub fn player_input(
             _ => Point::new(0, 0),
         };
         if delta.x != 0 || delta.y != 0 {
-            let mut adventurers = <&mut Point>::query().filter(component::<Adventurer>());
-            adventurers.iter_mut(ecs).for_each(|pos| {
-                let destination = *pos + delta;
-                if map.can_enter_tile(&destination) {
-                    *pos = destination;
-                    camera.follow_adventurer(&destination);
-                    *turn_state = PlayerTurn;
-                }
-            });
+            <(Entity, &Point)>::query()
+                .filter(component::<Adventurer>())
+                .iter(ecs)
+                .for_each(|(entity, position)| {
+                    let destination = *position + delta;
+                    buffer.push((
+                        (), // Legion does not accept single-component insertions
+                        WantsToMove {
+                            entity: *entity,
+                            destination,
+                        },
+                    ));
+                });
+            *turn_state = PlayerTurn;
         }
     }
 }
