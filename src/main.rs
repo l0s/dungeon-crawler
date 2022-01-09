@@ -24,10 +24,16 @@ mod prelude {
     pub use crate::systems::*;
     pub use crate::turn_state::*;
 
+    // Dimensions
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
     pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
     pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
+
+    // Layers
+    pub const MAP_LAYER: usize = 0;
+    pub const CHARACTER_LAYER: usize = 1;
+    pub const HUD_LAYER: usize = 2;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -79,9 +85,11 @@ impl Default for State {
 
 impl GameState for State {
     fn tick(&mut self, context: &mut BTerm) {
-        context.set_active_console(0); // TODO constant
+        context.set_active_console(MAP_LAYER);
         context.cls();
-        context.set_active_console(1); // TODO constant
+        context.set_active_console(CHARACTER_LAYER);
+        context.cls();
+        context.set_active_console(HUD_LAYER);
         context.cls();
 
         self.resources.insert(context.key);
@@ -109,8 +117,10 @@ fn main() -> BError {
         .with_tile_dimensions(32, 32)
         .with_resource_path("resources/")
         .with_font("dungeonfont.png", 32, 32)
+        .with_font("terminal8x8.png", 8, 8)
         .with_simple_console(DISPLAY_WIDTH, DISPLAY_HEIGHT, "dungeonfont.png")
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, "dungeonfont.png")
+        .with_simple_console_no_bg(SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, "terminal8x8.png")
         .build()?;
 
     main_loop(context, State::default())

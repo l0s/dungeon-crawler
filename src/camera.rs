@@ -25,4 +25,11 @@ impl Camera {
         self.top_y = player_position.y - DISPLAY_HEIGHT / 2;
         self.bottom_y = player_position.y + DISPLAY_HEIGHT / 2;
     }
+
+    pub fn origin(&self) -> Point {
+        Point {
+            x: self.left_x,
+            y: self.top_y,
+        }
+    }
 }

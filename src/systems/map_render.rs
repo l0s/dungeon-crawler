@@ -4,7 +4,7 @@ use crate::TileType::{FLOOR, WALL};
 #[system]
 pub fn map_render(#[resource] map: &Map, #[resource] camera: &Camera) {
     let mut batch = DrawBatch::new();
-    batch.target(0);
+    batch.target(MAP_LAYER);
     for y in camera.top_y..camera.bottom_y {
         for x in camera.left_x..camera.right_x {
             let camera_point = Point::new(x, y);

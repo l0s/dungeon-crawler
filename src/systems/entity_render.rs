@@ -5,8 +5,8 @@ use crate::prelude::*;
 #[read_component(Render)]
 pub fn entity_render(ecs: &SubWorld, #[resource] camera: &Camera) {
     let mut batch = DrawBatch::new();
-    batch.target(1); // TODO constant for layers
-    let camera_corner = Point::new(camera.left_x, camera.top_y); // TODO add method to Camera e.g. Camera::origin
+    batch.target(CHARACTER_LAYER);
+    let camera_corner = camera.origin();
 
     <(&Point, &Render)>::query()
         .iter(ecs)

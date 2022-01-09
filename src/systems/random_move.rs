@@ -12,7 +12,7 @@ pub fn random_move(ecs: &mut SubWorld, buffer: &mut CommandBuffer) {
             let delta = Point::new(rng.range(-1, 2), rng.range(-1, 2));
             let destination = *position + delta;
             buffer.push((
-                (),
+                (), // Legion does not accept single-component insertions
                 WantsToMove {
                     entity: *entity,
                     destination,
