@@ -1,3 +1,10 @@
+# Dungeon Crawl - Hands-on Rust
+
+This is my implementation of the Dungeon Crawl from _Hands-on Rust Effective
+Learning through 2D Game Development and Play_ by Herbert Wolverson. See
+[the book's website](https://pragprog.com/titles/hwrust/hands-on-rust/) for
+the original source code.
+
 ## Credits
 
 Dungeon floor, wall, and adventurer graphics - Buch - https://opengameart.org/content/unfinished-dungeon-tileset
