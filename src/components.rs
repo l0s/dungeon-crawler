@@ -41,3 +41,9 @@ pub struct WantsToMove {
     pub entity: Entity,
     pub destination: Point,
 }
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct WantsToAttack {
+    pub attacker: Entity,
+    pub target: Entity,
+}

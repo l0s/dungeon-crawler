@@ -22,19 +22,37 @@ pub fn player_input(
             _ => Point::new(0, 0),
         };
         if delta.x != 0 || delta.y != 0 {
-            <(Entity, &Point)>::query()
-                .filter(component::<Adventurer>())
-                .iter(ecs)
-                .for_each(|(entity, position)| {
-                    let destination = *position + delta;
+            if let Some((adventurer, destination)) =
+                <(Entity, &Point)>::query() // TODO pull this into the argument list
+                    .filter(component::<Adventurer>())
+                    .iter(ecs)
+                    .find_map(|(entity, position)| Some((*entity, *position + delta)))
+            {
+                let mut hit_something = false;
+                <(Entity, &Point)>::query()
+                    .filter(component::<Enemy>())
+                    .iter(ecs)
+                    .filter(|(_, position)| **position == destination)
+                    .for_each(|(target, _)| {
+                        hit_something |= true;
+                        buffer.push((
+                            (), // Legion does not accept single-component insertions
+                            WantsToAttack {
+                                attacker: adventurer,
+                                target: *target,
+                            },
+                        ));
+                    });
+                if !hit_something {
                     buffer.push((
                         (), // Legion does not accept single-component insertions
                         WantsToMove {
-                            entity: *entity,
+                            entity: adventurer,
                             destination,
                         },
                     ));
-                });
+                }
+            }
             *turn_state = PlayerTurn;
         }
     }

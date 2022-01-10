@@ -3,9 +3,12 @@ use crate::prelude::*;
 #[system]
 #[read_component(Point)]
 #[read_component(MovingRandomly)]
+// #[read_component(Health)]
+// #[read_component(Adventurer)]
 pub fn random_move(ecs: &mut SubWorld, buffer: &mut CommandBuffer) {
     // FIXME monsters are running into each other
     let mut rng = RandomNumberGenerator::new();
+
     <(Entity, &Point, &MovingRandomly)>::query()
         .iter(ecs)
         .for_each(|(entity, position, _)| {
