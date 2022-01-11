@@ -7,6 +7,8 @@ use crate::prelude::*;
 #[system]
 #[read_component(Point)]
 #[read_component(Adventurer)]
+#[read_component(Enemy)]
+#[write_component(Health)]
 pub fn player_input(
     ecs: &mut SubWorld,
     buffer: &mut CommandBuffer,
@@ -21,13 +23,13 @@ pub fn player_input(
             Down => Point::new(0, 1),
             _ => Point::new(0, 0),
         };
-        if delta.x != 0 || delta.y != 0 {
-            if let Some((adventurer, destination)) =
-                <(Entity, &Point)>::query() // TODO pull this into the argument list
-                    .filter(component::<Adventurer>())
-                    .iter(ecs)
-                    .find_map(|(entity, position)| Some((*entity, *position + delta)))
-            {
+        let mut did_something = false;
+        if let Some((adventurer, destination)) = <(Entity, &Point)>::query() // TODO pull this into the argument list
+            .filter(component::<Adventurer>())
+            .iter(ecs)
+            .find_map(|(entity, position)| Some((*entity, *position + delta)))
+        {
+            if delta.x != 0 || delta.y != 0 {
                 let mut hit_something = false;
                 <(Entity, &Point)>::query()
                     .filter(component::<Enemy>())
@@ -35,6 +37,7 @@ pub fn player_input(
                     .filter(|(_, position)| **position == destination)
                     .for_each(|(target, _)| {
                         hit_something |= true;
+                        did_something |= true;
                         buffer.push((
                             (), // Legion does not accept single-component insertions
                             WantsToAttack {
@@ -44,6 +47,7 @@ pub fn player_input(
                         ));
                     });
                 if !hit_something {
+                    did_something |= true;
                     buffer.push((
                         (), // Legion does not accept single-component insertions
                         WantsToMove {
@@ -51,6 +55,14 @@ pub fn player_input(
                             destination,
                         },
                     ));
+                }
+            }
+            if !did_something {
+                if let Ok(mut adventurer_entry) = ecs.entry_mut(adventurer) {
+                    if let Ok(health_component) = adventurer_entry.get_component_mut::<Health>() {
+                        health_component.current =
+                            u32::min(health_component.max, health_component.current + 1);
+                    }
                 }
             }
             *turn_state = PlayerTurn;
