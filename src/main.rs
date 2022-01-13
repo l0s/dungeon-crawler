@@ -72,6 +72,7 @@ impl Default for State {
         resources.insert(map_builder.map);
         resources.insert(Camera::from(&map_builder.starting_point));
         resources.insert(AwaitingInput);
+        resources.insert(rng);
 
         Self {
             ecs,
