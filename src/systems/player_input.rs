@@ -1,4 +1,4 @@
-use VirtualKeyCode::{Down, Left, Right, Up};
+use VirtualKeyCode::{Down, Left, Right, Up, A, D, S, W};
 
 use TurnState::PlayerTurn;
 
@@ -20,10 +20,10 @@ pub fn player_input(
 ) {
     if let Some(key) = key {
         let delta = match key {
-            Left => Point::new(-1, 0),
-            Right => Point::new(1, 0),
-            Up => Point::new(0, -1),
-            Down => Point::new(0, 1),
+            Left | A => Point::new(-1, 0),
+            Right | D => Point::new(1, 0),
+            Up | W => Point::new(0, -1),
+            Down | S => Point::new(0, 1),
             _ => Point::new(0, 0),
         };
         let destination = *position + delta;
