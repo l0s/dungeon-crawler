@@ -31,8 +31,13 @@ pub struct Health {
     pub max: u32,
 }
 
+// States
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct MovingRandomly;
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct ChasingAdventurer;
 
 // Intents
 

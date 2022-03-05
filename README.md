@@ -1,5 +1,7 @@
 # Dungeon Crawl - Hands-on Rust
 
+[![Continuous Integration](https://github.com/l0s/dungeon-crawler/actions/workflows/ci.yml/badge.svg)](https://github.com/l0s/dungeon-crawler/actions/workflows/ci.yml)
+
 This is my implementation of the Dungeon Crawl from _Hands-on Rust Effective
 Learning through 2D Game Development and Play_ by Herbert Wolverson. See
 [the book's website](https://pragprog.com/titles/hwrust/hands-on-rust/) for
