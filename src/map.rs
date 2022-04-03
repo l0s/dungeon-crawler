@@ -75,10 +75,10 @@ impl BaseMap for Map {
             Point::new(0, -1),
             Point::new(0, 1),
         ]
-            .iter()
-            .filter_map(|direction| self.valid_exit(source_location, *direction))
-            .map(|destination_index| (destination_index, 1.0))
-            .collect::<SmallVec<[(usize, f32); 10]>>()
+        .iter()
+        .filter_map(|direction| self.valid_exit(source_location, *direction))
+        .map(|destination_index| (destination_index, 1.0))
+        .collect::<SmallVec<[(usize, f32); 10]>>()
     }
 
     fn get_pathing_distance(&self, x: usize, y: usize) -> f32 {

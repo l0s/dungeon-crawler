@@ -1,6 +1,6 @@
 use prelude::*;
 
-use crate::prelude::TurnState::{AwaitingInput, MonsterTurn, PlayerTurn};
+use crate::prelude::TurnState::{AwaitingInput, GameOver, MonsterTurn, PlayerTurn};
 
 mod camera;
 mod components;
@@ -55,33 +55,39 @@ struct State {
 impl Default for State {
     fn default() -> Self {
         let mut ecs = World::default();
-        let mut resources = Resources::default();
         let mut rng = RandomNumberGenerator::new();
         let map_builder: MapBuilder = MapBuilder::from(&mut rng);
 
         // create entities
-
         spawn_player(&mut ecs, &map_builder.starting_point);
-        map_builder
-            .rooms
-            .iter()
-            .skip(1)
-            .map(|room| room.center())
-            .for_each(|position| spawn_monster(&mut ecs, &mut rng, &position));
-
-        resources.insert(map_builder.map);
-        resources.insert(Camera::from(&map_builder.starting_point));
-        resources.insert(AwaitingInput);
-        resources.insert(rng);
+        spawn_monsters(&mut ecs, &map_builder, &mut rng);
 
         Self {
             ecs,
-            resources,
+            resources: create_resources(map_builder, rng),
             input_systems: build_input_scheduler(),
             player_systems: build_player_scheduler(),
             monster_systems: build_monster_scheduler(),
         }
     }
+}
+
+fn spawn_monsters(ecs: &mut World, map_builder: &MapBuilder, rng: &mut RandomNumberGenerator) {
+    map_builder
+        .rooms
+        .iter()
+        .skip(1)
+        .map(|room| room.center())
+        .for_each(|position| spawn_monster(ecs, rng, &position));
+}
+
+fn create_resources(map_builder: MapBuilder, rng: RandomNumberGenerator) -> Resources {
+    let mut resources = Resources::default();
+    resources.insert(map_builder.map);
+    resources.insert(Camera::from(&map_builder.starting_point));
+    resources.insert(AwaitingInput);
+    resources.insert(rng);
+    resources
 }
 
 impl GameState for State {
@@ -104,15 +110,59 @@ impl GameState for State {
             .resources
             .get::<TurnState>()
             .expect("Missing turn state");
-        let systems_scheduler = match turn_state {
-            AwaitingInput => &mut self.input_systems,
-            PlayerTurn => &mut self.player_systems,
-            MonsterTurn => &mut self.monster_systems,
-        };
-        systems_scheduler.execute(&mut self.ecs, &mut self.resources);
+        if turn_state == GameOver {
+            self.game_over(context);
+        } else {
+            let systems_scheduler = match turn_state {
+                AwaitingInput => &mut self.input_systems,
+                PlayerTurn => &mut self.player_systems,
+                MonsterTurn => &mut self.monster_systems,
+                GameOver => panic!("Unexpected state"),
+            };
+            systems_scheduler.execute(&mut self.ecs, &mut self.resources);
+        }
 
         // render
         render_draw_buffer(context).expect("Render error");
+    }
+}
+
+impl State {
+    fn game_over(&mut self, context: &mut BTerm) {
+        context.set_active_console(HUD_LAYER);
+        context.print_color_centered(2, RED, BLACK, "Your quest has ended.");
+        context.print_color_centered(
+            4,
+            WHITE,
+            BLACK,
+            "Slain by a monster, your hero's journey has come to a premature end.",
+        );
+        context.print_color_centered(
+            5,
+            WHITE,
+            BLACK,
+            "The Amulet of Yara remains unclaimed, and your home town is not saved.",
+        );
+        context.print_color_centered(
+            8,
+            YELLOW,
+            BLACK,
+            "Don't worry, you can always try again with a new hero.",
+        );
+        context.print_color_centered(9, GREEN, BLACK, "Press 1 to play again.");
+
+        if let Some(VirtualKeyCode::Key1) = context.key {
+            self.ecs = World::default();
+            let mut rng = RandomNumberGenerator::new();
+            let map_builder = MapBuilder::from(&mut rng);
+
+            // create entities
+            spawn_player(&mut self.ecs, &map_builder.starting_point);
+            spawn_monsters(&mut self.ecs, &map_builder, &mut rng);
+
+            self.resources = create_resources(map_builder, rng);
+            self.resources.insert(TurnState::AwaitingInput);
+        }
     }
 }
 
