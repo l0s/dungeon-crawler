@@ -15,7 +15,6 @@ pub fn random_move(
 ) {
     let mut targets = <(Entity, &Point, &Health)>::query();
 
-    // TODO only try to move to open spaces
     let delta = Point::new(rng.range(-1, 2), rng.range(-1, 2));
     let destination = *position + delta;
 

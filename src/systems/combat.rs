@@ -9,7 +9,7 @@ pub fn combat(
     attacker_query: &mut Query<(Entity, &WantsToAttack)>,
     buffer: &mut CommandBuffer,
 ) {
-    // TODO no need to collect
+    // need to collect targets to ensure unique access to `ecs`
     let targets = attacker_query
         .iter(ecs)
         .map(|(attacker, intent)| (*attacker, intent.target))
