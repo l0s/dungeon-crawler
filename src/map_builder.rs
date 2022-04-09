@@ -8,6 +8,7 @@ pub struct MapBuilder {
     pub map: Map,
     pub rooms: Vec<Rect>,
     pub starting_point: Point,
+    pub target_point: Point,
 }
 
 impl MapBuilder {
@@ -68,11 +69,29 @@ impl From<&mut RandomNumberGenerator> for MapBuilder {
             map: Map::default(),
             rooms: Vec::new(),
             starting_point: Point::zero(),
+            target_point: Point::zero(),
         };
         result.fill(WALL);
         result.build_random_rooms(rng);
         result.build_corridors(rng);
         result.starting_point = result.rooms[0].center();
+
+        let dijkstra_map = DijkstraMap::new(
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            &[result.map.point2d_to_index(result.starting_point)],
+            &result.map,
+            1024.0,
+        );
+        
+        const UNREACHABLE: &f32 = &f32::MAX;
+        result.target_point = result.map.index_to_point2d(dijkstra_map.map
+            .iter()
+            .enumerate()
+            .filter(|(_, distance)| *distance < UNREACHABLE)
+            .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+            .unwrap().0);
+
         result
     }
 }

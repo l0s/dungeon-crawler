@@ -61,6 +61,7 @@ impl Default for State {
         // create entities
         spawn_player(&mut ecs, &map_builder.starting_point);
         spawn_monsters(&mut ecs, &map_builder, &mut rng);
+        spawn_amulet_of_yala(&mut ecs, map_builder.target_point);
 
         Self {
             ecs,
@@ -159,6 +160,7 @@ impl State {
             // create entities
             spawn_player(&mut self.ecs, &map_builder.starting_point);
             spawn_monsters(&mut self.ecs, &map_builder, &mut rng);
+            spawn_amulet_of_yala(&mut self.ecs, map_builder.target_point);
 
             self.resources = create_resources(map_builder, rng);
             self.resources.insert(TurnState::AwaitingInput);

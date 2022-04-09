@@ -52,3 +52,9 @@ pub struct WantsToAttack {
     pub attacker: Entity,
     pub target: Entity,
 }
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct Item;
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct AmuletOfYala;
